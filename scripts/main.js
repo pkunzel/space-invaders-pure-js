@@ -146,9 +146,13 @@ class Particle {
 
 		this.radius = radius;
 		this.color = color;
+		this.opacity = 1;
 	}
 
 	draw() {
+		context.save()
+		context.globalAlpha = this.opacity;
+
 		context.beginPath();
 		context.arc(this.position.x,
 			this.position.y,
@@ -158,6 +162,8 @@ class Particle {
 		context.fillStyle = this.color;
 		context.fill();
 		context.closePath();
+
+		context.restore()
 	}
 
 	update() {
@@ -165,6 +171,8 @@ class Particle {
 
 		this.position.x += this.velocity.x;
 		this.position.y += this.velocity.y;
+
+		this.opacity -= 0.01;
 	}
 }
 
@@ -254,8 +262,12 @@ function animate() {
 
 	player.update();
 
-	particles.forEach(particle => {
-		particle.update();
+	particles.forEach((particle, particleIndex) => {
+		if(particle.opacity <= 0) {
+			particles.splice(particleIndex, 1);
+		}else{
+			particle.update();
+		}
 	})
 
 	invaderProjectiles.forEach((projectile, projectileIndex) => {
@@ -301,19 +313,6 @@ function animate() {
 					&& projectile.position.x - projectile.radius <= invader.position.x + invader.width
 					&& projectile.position.y + projectile.radius >= invader.position.y) {
 
-					particles.push(new Particle({
-						position: {
-							x: invader.position.x + invader.width / 2,
-							y: invader.position.y + invader.height / 2
-						},
-						velocity: {
-							x: 2,
-							y: 2
-						},
-						radius: 10,
-						color: 'yellow'
-					}));
-
 					setTimeout(() => {
 						const invaderExist = grid.invaders.find(targetInvader => targetInvader == invader);
 						const projectileExist = projectiles.find(targetProjectile => targetProjectile == projectile);
@@ -322,6 +321,22 @@ function animate() {
 						if (invaderExist && projectileExist) {
 							grid.invaders.splice(invaderIndex, 1);
 							projectiles.splice(projectileIndex, 1);
+
+							// create particle
+							for (let i = 0; i < 10; i++) {
+								particles.push(new Particle({
+									position: {
+										x: invader.position.x + invader.width / 2,
+										y: invader.position.y + invader.height / 2
+									},
+									velocity: {
+										x: (Math.random() - 0.5) * 2,
+										y: (Math.random() - 0.5) * 2
+									},
+									radius: Math.random() * 3,
+									color: '#BAA0BE'
+								}));
+							}
 
 							if (grid.invaders.length == 0) {
 								grids.splice(gridIndex, 1);
