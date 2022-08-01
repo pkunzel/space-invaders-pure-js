@@ -1,5 +1,7 @@
 const canvas = document.querySelector('#game-canvas');
 const context = canvas.getContext('2d');
+const gameScore = document.querySelector('[game-score]');
+
 const keys = {
 	left: {
 		pressed: false
@@ -264,12 +266,21 @@ const invaderProjectiles = [];
 const particles = [];
 
 
+
 let frames = 0;
 let randomInterval = Math.floor((Math.random() * 500)) + 500;
 let game = {
 	over: false,
-	active: true
+	active: true,
+	score : 0
 }
+
+function updateScore(points) {
+	game.score += points;
+	gameScore.innerHTML = game.score;
+}
+
+updateScore(0);
 
 for (let i = 0; i < 100; i++) {
 	particles.push(new Particle({
@@ -379,6 +390,8 @@ function animate() {
 								grid.width = lasrInvader.position.x + lasrInvader.width - firstInvader.position.x;
 								grid.position.x = firstInvader.position.x;
 							}
+
+							updateScore(10);
 						}
 					}, 0);
 				}
