@@ -263,9 +263,9 @@ function animate() {
 	player.update();
 
 	particles.forEach((particle, particleIndex) => {
-		if(particle.opacity <= 0) {
+		if (particle.opacity <= 0) {
 			particles.splice(particleIndex, 1);
-		}else{
+		} else {
 			particle.update();
 		}
 	})
@@ -282,8 +282,12 @@ function animate() {
 			projectile.position.y < player.position.y + player.height &&
 			projectile.position.x + projectile.width > player.position.x &&
 			projectile.position.x < player.position.x + player.width) {
-			console.log('You Lose')
+			
 			invaderProjectiles.splice(projectileIndex, 1);
+
+			createParticles({object : player, color : 'white'});
+
+			
 		}
 	})
 
@@ -322,21 +326,7 @@ function animate() {
 							grid.invaders.splice(invaderIndex, 1);
 							projectiles.splice(projectileIndex, 1);
 
-							// create particle
-							for (let i = 0; i < 10; i++) {
-								particles.push(new Particle({
-									position: {
-										x: invader.position.x + invader.width / 2,
-										y: invader.position.y + invader.height / 2
-									},
-									velocity: {
-										x: (Math.random() - 0.5) * 2,
-										y: (Math.random() - 0.5) * 2
-									},
-									radius: Math.random() * 3,
-									color: '#BAA0BE'
-								}));
-							}
+							createParticles({object : invader});
 
 							if (grid.invaders.length == 0) {
 								grids.splice(gridIndex, 1);
@@ -374,6 +364,23 @@ function animate() {
 
 
 	frames++;
+}
+
+function createParticles({object, color}) {
+	for (let i = 0; i < 10; i++) {
+		particles.push(new Particle({
+			position: {
+				x: object.position.x + object.width / 2,
+				y: object.position.y + object.height / 2
+			},
+			velocity: {
+				x: (Math.random() - 0.5) * 2,
+				y: (Math.random() - 0.5) * 2
+			},
+			radius: Math.random() * 3,
+			color: color || '#BAA0BE'
+		}));
+	}
 }
 
 animate();
