@@ -7,9 +7,21 @@
 	<title>Space Invaders</title>
 
 	<script src="scripts/main.js" defer></script>
+	<style>
+		p{
+			position: absolute;
+			top: 5px;
+			left: 15px;
+			color: white;
+			font-family: sans-serif;
+		}
+	</style>
 </head>
 <body>
-	<canvas id="game-canvas"></canvas>
-
+	<main>
+		<p><span>Score: </span><span game-score>0</span></p>
+		<canvas id="game-canvas"></canvas>
+	</main>
+	
 </body>
 </html>

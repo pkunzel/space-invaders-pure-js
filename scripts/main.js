@@ -36,15 +36,22 @@ class Player {
 				y: canvas.height - this.height / 2 - 25
 			}
 		}
+
+		this.opacity = 1;
 	}
 
 	draw() {
 		if (this.image) {
+			context.save();
+			context.globalAlpha = this.opacity;
+
 			context.drawImage(this.image,
 				this.position.x,
 				this.position.y,
 				this.width,
 				this.height);
+
+			context.restore();
 		}
 	}
 
@@ -140,13 +147,14 @@ class Projectile {
 }
 
 class Particle {
-	constructor({ position, velocity, radius, color }) {
+	constructor({ position, velocity, radius, color, fades }) {
 		this.position = position;
 		this.velocity = velocity;
 
 		this.radius = radius;
 		this.color = color;
 		this.opacity = 1;
+		this.fades = fades;
 	}
 
 	draw() {
@@ -170,9 +178,14 @@ class Particle {
 		this.draw();
 
 		this.position.x += this.velocity.x;
-		this.position.y += this.velocity.y;
 
-		this.opacity -= 0.01;
+		this.position.y = this.position.y + this.velocity.y;
+
+		if (this.fades) {
+			this.opacity -= 0.01;
+		} else if (this.position.y > canvas.height) {
+			this.position.y = 0;
+		}
 	}
 }
 
@@ -253,8 +266,30 @@ const particles = [];
 
 let frames = 0;
 let randomInterval = Math.floor((Math.random() * 500)) + 500;
+let game = {
+	over: false,
+	active: true
+}
+
+for (let i = 0; i < 100; i++) {
+	particles.push(new Particle({
+		position: {
+			x: Math.random() * canvas.width,
+			y: Math.random() * canvas.height
+		},
+		velocity: {
+			x: 0,
+			y: 0.5
+		},
+		radius: 1,
+		color: 'white',
+		fades: false
+	}));
+}
 
 function animate() {
+	if (!game.active) return;
+
 	requestAnimationFrame(animate);
 
 	context.fillStyle = 'black';
@@ -282,12 +317,19 @@ function animate() {
 			projectile.position.y < player.position.y + player.height &&
 			projectile.position.x + projectile.width > player.position.x &&
 			projectile.position.x < player.position.x + player.width) {
-			
-			invaderProjectiles.splice(projectileIndex, 1);
 
-			createParticles({object : player, color : 'white'});
+			setTimeout(() => {
+				invaderProjectiles.splice(projectileIndex, 1);
+				player.opacity = 0;
+				game.over = true;
+			}, 0);
 
-			
+			setTimeout(() => {
+				game.active = false;
+			}, 2000);
+
+			createParticles({ object: player, color: 'red', fades: true });
+
 		}
 	})
 
@@ -326,7 +368,7 @@ function animate() {
 							grid.invaders.splice(invaderIndex, 1);
 							projectiles.splice(projectileIndex, 1);
 
-							createParticles({object : invader});
+							createParticles({ object: invader, fades: true });
 
 							if (grid.invaders.length == 0) {
 								grids.splice(gridIndex, 1);
@@ -366,7 +408,7 @@ function animate() {
 	frames++;
 }
 
-function createParticles({object, color}) {
+function createParticles({ object, color, fades }) {
 	for (let i = 0; i < 10; i++) {
 		particles.push(new Particle({
 			position: {
@@ -378,7 +420,8 @@ function createParticles({object, color}) {
 				y: (Math.random() - 0.5) * 2
 			},
 			radius: Math.random() * 3,
-			color: color || '#BAA0BE'
+			color: color || '#BAA0BE',
+			fades: fades || false
 		}));
 	}
 }
@@ -386,6 +429,8 @@ function createParticles({object, color}) {
 animate();
 
 window.addEventListener('keydown', (e) => {
+	if (game.over) return
+
 	switch (e.key) {
 		case 'ArrowLeft':
 			keys.left.pressed = true;
