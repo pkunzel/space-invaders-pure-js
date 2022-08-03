@@ -1,4 +1,7 @@
 const canvas = document.querySelector('#game-canvas');
+canvas.width = window.innerWidth * .9;
+canvas.height = window.innerHeight * .9;
+
 const context = canvas.getContext('2d');
 const gameScore = document.querySelector('[game-score]');
 
@@ -14,8 +17,28 @@ const keys = {
 	}
 };
 
-canvas.width = window.innerWidth * .9;
-canvas.height = window.innerHeight * .9;
+class gameEntity{
+	constructor({velocity, position, image}){
+		this.velocity = velocity;
+		this.opacity = 1;
+		
+		const image = new Image();
+		image.src = image.src;
+		image.onload = () => {
+			const scale = image.scale || 1;
+			this.image = image;
+			
+			this.width = image.width * scale;
+			this.height = image.height * scale;
+
+			this.position = position;
+		}
+	}
+	
+	update() { throw new Error('Player.update() not implemented'); }
+
+	draw() { throw new Error('Player.draw() not implemented'); }
+}
 
 class Player {
 	constructor() {
@@ -272,7 +295,7 @@ let randomInterval = Math.floor((Math.random() * 500)) + 500;
 let game = {
 	over: false,
 	active: true,
-	score : 0
+	score: 0
 }
 
 function updateScore(points) {
@@ -412,7 +435,7 @@ function animate() {
 	if (frames % randomInterval === 0) {
 		grids.push(new Grid());
 		frames = 0;
-		randomInterval = Math.floor((Math.random() * 500)) + 500;
+		randomInterval = Math.floor((Math.random() * 1000)) + 500;
 	}
 
 	//spawn enemy projectile
